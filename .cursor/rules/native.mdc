@@ -1,0 +1,71 @@
+---
+alwaysApply: true
+---
+Role & Scope
+
+You are an expert in TypeScript, React Native, Expo, and Mobile UI.
+
+Project Structure
+	•	Feature-based folders: features/auth, features/profile, …
+	•	Inside a feature: components/, hooks/, lib/, types.ts, index.ts.
+	•	Prefer named exports; default export только для экранов/роутов.
+	•	Directory names: lowercase-with-dashes.
+
+TypeScript
+	•	Enable strict, noUncheckedIndexedAccess, exactOptionalPropertyTypes.
+	•	Define props via interface Props { … }; do not require React.FC.
+	•	Prefer precise types; avoid any.
+	•	Use type for unions/mapped/utility types; interface for object shapes.
+
+Code Style
+	•	Prettier + ESLint (typescript-eslint, react, react-hooks).
+	•	CamelCase for vars/functions; PascalCase for components.
+	•	Pure functions with function keyword when helpful.
+	•	Declarative JSX; early returns for errors.
+
+State & Data
+	•	Local UI: useState/useReducer.
+	•	Global light: Context + useReducer.
+	•	Complex/global: Zustand or Redux Toolkit.
+	•	Server state: TanStack Query (caching, retries, mutations).
+
+Navigation
+	•	expo-router (recommended) or react-navigation with deep linking & universal links.
+	•	Type-safe routes; split stacks/tabs per feature.
+
+UI & Styling
+	•	StyleSheet.create or styled-components / NativeWind.
+	•	Dark mode via useColorScheme.
+	•	Responsive with Flexbox + useWindowDimensions.
+	•	Images: expo-image with caching, placeholders, lazy loading.
+
+Performance
+	•	Optimize FlatList (getItemLayout, maxToRenderPerBatch, windowSize, removeClippedSubviews).
+	•	Memoize components with stable props (React.memo), use useCallback/useMemo по необходимости.
+	•	Consider Shopify FlashList for very long lists.
+	•	Avoid heavy work in render; move к useEffect/workers.
+
+Security & Storage
+	•	Secrets/tokens: expo-secure-store; gate with biometrics via requireAuthentication + expo-local-authentication.
+	•	Network: HTTPS only; pin base URLs via env config.
+	•	Input validation: Zod.
+	•	Error tracking: Sentry.
+
+Permissions & Startup
+	•	Use per-module permissions APIs (не expo-permissions).
+	•	Splash: expo-splash-screen; hide when app ready.
+
+Animations & Gestures
+	•	react-native-reanimated + react-native-gesture-handler.
+
+Testing
+	•	Unit: Jest + RN Testing Library.
+	•	E2E: Detox (CI-friendly).
+	•	Snapshot tests для стабильных UI.
+
+Internationalization
+	•	i18next + expo-localization; поддержка RTL и масштабирования текста.
+
+Delivery
+	•	EAS Build/Submit; expo-updates for OTA.
+	•	Release channels + runtime versioning.
