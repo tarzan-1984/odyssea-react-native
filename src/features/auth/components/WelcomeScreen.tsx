@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, Image } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '@/types/navigation';
-import { colors, typography, spacing, borderRadius, shadows } from '@/lib';
+import { colors, typography, spacing, borderRadius, shadows, fonts } from '@/lib';
+import { login } from '@/lib/api';
+import ArrowRight from '@/icons/ArrowRight';
+import FaceIdIcon from '@/icons/FaceIdIcon';
+import ScreenLayout from './ScreenLayout';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Welcome'>;
 
@@ -15,10 +19,65 @@ const { width } = Dimensions.get('window');
  */
 export default function WelcomeScreen({ navigation }: Props) {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleNext = () => {
-    if (email.trim()) {
-      navigation.navigate('EnterPassword', { email: email.trim() });
+  // Simple email validation
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Simple password validation
+  const validatePassword = (password: string): boolean => {
+    return password.length >= 6;
+  };
+
+  const handleNext = async () => {
+    if (!email.trim()) {
+      setError('Email is required');
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    if (!password.trim()) {
+      setError('Password is required');
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setError(null);
+      setSuccess(null);
+      
+      // Send request to backend
+      const response = await login(email, password);
+      
+      // Show success message
+      setSuccess(response.data?.message || 'Login successful!');
+      
+      // Redirect after 1 second
+      setTimeout(() => {
+        navigation.navigate('EnterPassword', { email: email.trim() });
+      }, 1000);
+      
+    } catch (err) {
+      // Show the actual error message from backend
+      const errorMessage = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -28,43 +87,82 @@ export default function WelcomeScreen({ navigation }: Props) {
   };
 
   return (
-    <View style={styles.container}>
+    <ScreenLayout>
       {/* Logo section */}
+      
       <View style={styles.logoSection}>
-        <View style={styles.shipIcon}>
-          <Text style={styles.shipEmoji}>🚢</Text>
-        </View>
-        <Text style={styles.logo}>ODYSSEIA</Text>
+        <Image 
+          source={require('../../../../assets/logo.png')}
+          style={styles.logoImage}
+        />
       </View>
       
-      <Text style={styles.title}>Welcome To The Application</Text>
+      <Text style={styles.title}>Welcome to the application</Text>
       
       <View style={styles.inputContainer}>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            error && styles.inputError
+          ]}
           placeholder="Enter your email address"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={(text) => {
+            setEmail(text);
+            if (error) setError(null); // Clear error when user types
+            if (success) setSuccess(null); // Clear success when user types
+          }}
           keyboardType="email-address"
           autoCapitalize="none"
           autoCorrect={false}
-          placeholderTextColor="#8E8E93"
+          placeholderTextColor={colors.neutral.white}
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={[
+            styles.input,
+            error && styles.inputError
+          ]}
+          placeholder="Enter your password"
+          value={password}
+          onChangeText={(text) => {
+            setPassword(text);
+            if (error) setError(null); // Clear error when user types
+            if (success) setSuccess(null); // Clear success when user types
+          }}
+          secureTextEntry={true}
+          autoCapitalize="none"
+          autoCorrect={false}
+          placeholderTextColor={colors.neutral.white}
         />
       </View>
       
       <TouchableOpacity 
-        style={[styles.button, !email.trim() && styles.buttonDisabled]} 
+        style={[
+          styles.button, 
+          (!email.trim() || !password.trim() || isLoading) && styles.buttonDisabled
+        ]} 
         onPress={handleNext}
-        disabled={!email.trim()}
+        disabled={!email.trim() || !password.trim() || isLoading}
       >
-        <Text style={styles.buttonText}>Next →</Text>
+        <Text style={styles.buttonText}>
+          {isLoading ? 'Checking...' : 'Next'}
+        </Text>
+        <ArrowRight />
       </TouchableOpacity>
       
+      {(error || success) && (
+        <Text style={[styles.messageText, error && styles.errorText, success && styles.successText]}>
+          {error || success}
+        </Text>
+      )}
+      
+      <Text style={styles.faceIDText}>Login using face ID</Text>
+      
       <TouchableOpacity style={styles.faceIdButton} onPress={handleFaceID}>
-        <View style={styles.faceIdIcon}>
-          <Text style={styles.faceIdEmoji}>👤</Text>
-        </View>
-        <Text style={styles.faceIdText}>Login using face ID</Text>
+        <FaceIdIcon />
       </TouchableOpacity>
       
       {/* Progress dots */}
@@ -73,121 +171,103 @@ export default function WelcomeScreen({ navigation }: Props) {
         <View style={styles.dot} />
         <View style={styles.dot} />
       </View>
-    </View>
+    
+    </ScreenLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#ffffff',
-    paddingHorizontal: 20,
-    justifyContent: 'center',
-  },
   logoSection: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  shipIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#007AFF',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 15,
-    shadowColor: '#007AFF',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
+    marginBottom: 54,
   },
-  shipEmoji: {
-    fontSize: 30,
-  },
-  logo: {
-    ...typography.h2,
+  logoImage: {
+    width: 213,
+    height: 77,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000000',
+    fontSize: 22,
+    fontFamily: fonts["700"],
+    color: colors.neutral.white,
     textAlign: 'center',
-    marginBottom: 40,
-    lineHeight: 32,
+    marginBottom: 29,
+    lineHeight: 35,
   },
   inputContainer: {
-    marginBottom: 30,
+    marginBottom: 20,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 12,
+    borderColor: colors.neutral.white,
+    borderRadius: borderRadius.sm10,
     paddingHorizontal: 20,
-    paddingVertical: 16,
     fontSize: 16,
-    backgroundColor: '#F8F8F8',
-    color: '#000000',
+    height: 50,
+    textAlign: 'center',
+    backgroundColor: 'transparent',
+    color: colors.neutral.white,
+  },
+  inputError: {
+    borderColor: '#FF6B6B',
+    borderWidth: 2,
+  },
+  messageText: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 8,
+    fontFamily: fonts["400"],
+  },
+  errorText: {
+    color: '#FF6B6B',
+  },
+  successText: {
+    color: '#4CAF50',
   },
   button: {
-    backgroundColor: colors.primary.blue,
-    borderRadius: borderRadius.md,
-    paddingVertical: spacing.lg,
-    alignItems: 'center',
-    marginBottom: spacing.xl,
-    ...shadows.md,
-    shadowColor: colors.primary.blue,
+    ...typography.buttonGreen,
   },
   buttonDisabled: {
-    backgroundColor: '#C7C7CC',
-    shadowOpacity: 0,
-    elevation: 0,
+    ...typography.buttonGreen,
+    opacity: 0.8
   },
   buttonText: {
     ...typography.button,
   },
+  faceIDText: {
+    marginTop: 65,
+    fontSize: 16,
+    color: colors.neutral.white,
+    marginBottom: 26,
+    fontFamily: fonts["400"],
+    textAlign: 'center',
+  },
   faceIdButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 50,
-  },
-  faceIdIcon: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#F0F0F0',
+    marginHorizontal: 'auto',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
+    width: 70,
+    height: 70,
+    borderRadius: borderRadius.sm10,
+    backgroundColor: 'rgba(0, 0, 0, 0.11)',
+    marginBottom: 132,
   },
-  faceIdEmoji: {
-    fontSize: 16,
-  },
-  faceIdText: {
-    color: '#007AFF',
-    fontSize: 16,
-    fontWeight: '500',
-  },
+  
   dots: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    gap: 20,
   },
   dot: {
     width: 10,
     height: 10,
-    borderRadius: 5,
-    backgroundColor: '#C7C7CC',
-    marginHorizontal: 6,
+    borderRadius: borderRadius.full,
+    backgroundColor: '#D5D8FC',
+    opacity: 0.2,
   },
   dotActive: {
-    backgroundColor: '#007AFF',
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+    backgroundColor: colors.neutral.white,
+    opacity: 1,
   },
 });

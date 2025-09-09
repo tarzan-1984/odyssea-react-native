@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
+import { useFonts } from 'expo-font';
 import RootNavigator from '@/navigation/RootNavigator';
 
 // Keep the splash screen visible while we fetch resources
@@ -15,13 +16,21 @@ SplashScreen.preventAutoHideAsync();
  */
 export default function App() {
   const [appIsReady, setAppIsReady] = useState(false);
+  const [fontsLoaded] = useFonts({
+    'Mulish-Regular': require('./assets/fonts/Mulish-Regular.ttf'),
+    'Mulish-Bold': require('./assets/fonts/Mulish-Bold.ttf'),
+    'Mulish-SemiBold': require('./assets/fonts/Mulish-SemiBold.ttf'),
+    'Mulish-Medium': require('./assets/fonts/Mulish-Medium.ttf'),
+    'Mulish-Light': require('./assets/fonts/Mulish-Light.ttf')
+  });
 
   useEffect(() => {
     async function prepare() {
       try {
-        // Pre-load fonts, make any API calls you need to do here
-        // For now, we'll just wait a bit to simulate loading
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Wait for fonts to load
+        if (fontsLoaded) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
       } catch (e) {
         console.warn(e);
       } finally {
@@ -31,7 +40,7 @@ export default function App() {
     }
 
     prepare();
-  }, []);
+  }, [fontsLoaded]);
 
   const onLayoutRootView = useCallback(async () => {
     if (appIsReady) {
@@ -40,7 +49,7 @@ export default function App() {
     }
   }, [appIsReady]);
 
-  if (!appIsReady) {
+  if (!appIsReady || !fontsLoaded) {
     return null;
   }
 

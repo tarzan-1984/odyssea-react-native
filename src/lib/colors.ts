@@ -6,13 +6,14 @@
 export const colors = {
   // Primary colors
   primary: {
-    blue: '#007AFF',        // Main brand blue for buttons and active states
+    blue: '#292966',        // Main brand blue for buttons and active states
     lightBlue: '#5AC8FA',   // Light blue for profile and secondary elements
+    green: '#70FFAE',
   },
 
   // Secondary colors
   secondary: {
-    green: '#34C759',       // Success green for toggles and success states
+  
   },
 
   // Neutral colors

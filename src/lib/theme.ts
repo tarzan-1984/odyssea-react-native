@@ -5,8 +5,29 @@
 
 import { colors } from './colors';
 
+// Define borderRadius first
+const borderRadiusVar = {
+  sm: 8,
+  sm10: 10,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  full: 9999,
+};
+
+
+const fontsVar = {
+  '700': 'Mulish-Bold',
+  '400': 'Mulish-Regular',
+  '600': 'Mulish-SemiBold',
+  '500': 'Mulish-Medium',
+  '300': 'Mulish-Light',
+};
+
 export const theme = {
   colors,
+  
+  fonts : fontsVar,
   
   // Typography
   typography: {
@@ -14,18 +35,21 @@ export const theme = {
     h1: {
       fontSize: 36,
       fontWeight: 'bold' as const,
+      fontFamily: 'Mulish-Bold',
       color: colors.primary.blue,
       letterSpacing: 2,
     },
     h2: {
       fontSize: 28,
       fontWeight: 'bold' as const,
+      fontFamily: 'Mulish-Bold',
       color: colors.primary.blue,
       letterSpacing: 1.5,
     },
     h3: {
       fontSize: 24,
       fontWeight: 'bold' as const,
+      fontFamily: 'Mulish-Bold',
       color: colors.neutral.black,
     },
     
@@ -33,23 +57,37 @@ export const theme = {
     body: {
       fontSize: 16,
       fontWeight: '500' as const,
+      fontFamily: 'Mulish-Medium',
       color: colors.neutral.black,
     },
     bodySecondary: {
       fontSize: 16,
       fontWeight: '500' as const,
+      fontFamily: 'Mulish-Medium',
       color: colors.neutral.darkGrey,
+    },
+    
+    buttonGreen: {
+      backgroundColor: colors.primary.green,
+      borderRadius: borderRadiusVar.sm10,
+      width: '100%',
+      height: 54,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 20,
     },
     
     // Buttons
     button: {
       fontSize: 18,
-      fontWeight: '600' as const,
-      color: colors.neutral.white,
+      fontFamily: fontsVar["500"],
+      color: colors.primary.blue,
     },
     buttonSecondary: {
       fontSize: 16,
       fontWeight: '500' as const,
+      fontFamily: 'Mulish-Medium',
       color: colors.primary.blue,
     },
     
@@ -57,11 +95,13 @@ export const theme = {
     input: {
       fontSize: 16,
       fontWeight: '500' as const,
+      fontFamily: 'Mulish-Medium',
       color: colors.neutral.black,
     },
     placeholder: {
       fontSize: 16,
       fontWeight: '500' as const,
+      fontFamily: 'Mulish-Medium',
       color: colors.neutral.darkGrey,
     },
   },
@@ -75,15 +115,6 @@ export const theme = {
     xl: 20,
     xxl: 24,
     xxxl: 32,
-  },
-  
-  // Border radius
-  borderRadius: {
-    sm: 8,
-    md: 12,
-    lg: 16,
-    xl: 20,
-    full: 9999,
   },
   
   // Shadows
@@ -119,7 +150,12 @@ export const theme = {
       elevation: 8,
     },
   },
+  
+  // Border radius
+  borderRadius: borderRadiusVar,
 } as const;
 
+
+
 // Export individual parts for convenience
-export const { typography, spacing, borderRadius, shadows } = theme;
+export const { typography, spacing, borderRadius, shadows, fonts } = theme;
