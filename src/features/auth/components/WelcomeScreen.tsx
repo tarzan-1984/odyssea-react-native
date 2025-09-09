@@ -89,7 +89,6 @@ export default function WelcomeScreen({ navigation }: Props) {
   return (
     <ScreenLayout>
       {/* Logo section */}
-      
       <View style={styles.logoSection}>
         <Image 
           source={require('../../../../assets/logo.png')}
@@ -171,7 +170,6 @@ export default function WelcomeScreen({ navigation }: Props) {
         <View style={styles.dot} />
         <View style={styles.dot} />
       </View>
-    
     </ScreenLayout>
   );
 }
@@ -258,6 +256,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 20,
+    marginTop: 'auto',
+    marginBottom: 50,
   },
   dot: {
     width: 10,

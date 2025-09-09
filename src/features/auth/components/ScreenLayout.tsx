@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Image, StyleSheet } from 'react-native';
+import { View, Image, StyleSheet, SafeAreaView } from 'react-native';
 import { colors } from "@/lib";
 
 interface ScreenLayoutProps {
@@ -15,9 +15,11 @@ const ScreenLayout: React.FC<ScreenLayoutProps> = ({ children }) => {
 				resizeMode="cover"
 			/>
 			
-			<View style={styles.content}>
-				{children}
-			</View>
+			<SafeAreaView style={styles.safeArea}>
+				<View style={styles.content}>
+					{children}
+				</View>
+			</SafeAreaView>
 		</View>
 	)
 }
@@ -36,6 +38,9 @@ const styles = StyleSheet.create({
 		bottom: 0,
 		width: "100%",
 		height: "100%",
+	},
+	safeArea: {
+		flex: 1,
 	},
 	content: {
 		flex: 1,
