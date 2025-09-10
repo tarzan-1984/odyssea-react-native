@@ -97,6 +97,7 @@ export default function EnterPasswordScreen({ navigation, route }: Props) {
               <TouchableOpacity 
                 style={styles.showPasswordButton}
                 onPress={() => setShowPassword(!showPassword)}
+                testID="show-password-button"
               >
                 <ShowPassword />
               </TouchableOpacity>
@@ -128,7 +129,11 @@ export default function EnterPasswordScreen({ navigation, route }: Props) {
             
             <Text style={styles.faceIDText}>Login using face ID</Text>
             
-            <TouchableOpacity style={styles.faceIdButton} onPress={handleFaceID}>
+            <TouchableOpacity 
+              style={styles.faceIdButton} 
+              onPress={handleFaceID}
+              testID="face-id-button"
+            >
               <FaceIdIcon />
             </TouchableOpacity>
           </View>
