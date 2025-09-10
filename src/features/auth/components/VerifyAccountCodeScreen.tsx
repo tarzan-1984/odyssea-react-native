@@ -14,7 +14,7 @@ const { width } = Dimensions.get('window');
  * Based on the design with header, code input fields, and action buttons
  */
 export default function VerifyAccountCodeScreen({ navigation, route }: Props) {
-  const { method = 'email', contact = 'test@example.com' } = route.params || {};
+  const { method, contact } = route.params;
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const inputRefs = useRef<TextInput[]>([]);
 
