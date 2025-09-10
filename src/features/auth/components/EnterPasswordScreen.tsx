@@ -61,7 +61,7 @@ export default function EnterPasswordScreen({ navigation, route }: Props) {
   };
 
   return (
-    <ScreenLayout headerTitle={'Enter Password'} headerButtonText={'Cancel'} onHeaderButtonPress={() => {console.log('qqqqqq');}} >
+    <ScreenLayout headerTitle={'Enter Password'} headerButtonText={'Cancel'} onHeaderButtonPress={() => navigation.goBack()} >
           <View style={styles.container}>
             <View style={styles.inputContainer}>
               <TextInput
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   showPasswordButton: {
     position: 'absolute',
     right: 15,
-    top: 20,
+    top: 10,
     padding: 5,
   },
   inputError: {
