@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
 		right: 0,
 		zIndex: 4,
 		backgroundColor: colors.primary.violet,
-		paddingTop: 70,
+		paddingTop: 50,
 		paddingHorizontal: 15,
 		paddingBottom: 15,
 		flexDirection: 'row',
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	safeAreaWithHeader: {
-		paddingTop: 106,
+		paddingTop: 76,
 	},
 	content: {
 		flex: 1,

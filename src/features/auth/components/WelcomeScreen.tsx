@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, Image } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '@/types/navigation';
-import { colors, typography, spacing, borderRadius, shadows, fonts } from '@/lib';
+import { colors, typography, spacing, borderRadius, shadows, fonts, rem, fp, br } from '@/lib';
 import ArrowRight from '@/icons/ArrowRight';
 import FaceIdIcon from '@/icons/FaceIdIcon';
 import ScreenLayout from './ScreenLayout';
@@ -118,29 +118,29 @@ const styles = StyleSheet.create({
   logoSection: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 54,
+    marginBottom: rem(54),
   },
   logoImage: {
-    width: 213,
-    height: 77,
+    width: rem(213),
+    height: rem(77),
   },
   title: {
-    fontSize: 22,
+    fontSize: fp(22),
     fontFamily: fonts["700"],
     color: colors.neutral.white,
     textAlign: 'center',
-    marginBottom: 29,
-    lineHeight: 35,
+    marginBottom: rem(29),
+    lineHeight: fp(35),
   },
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: rem(20),
   },
   input: {
     borderWidth: 1,
     borderColor: colors.neutral.white,
-    borderRadius: borderRadius.sm10,
-    paddingHorizontal: 20,
-    fontSize: 16,
+    borderRadius: br(10),
+    paddingHorizontal: rem(20),
+    fontSize: fp(16),
     height: 50,
     textAlign: 'center',
     backgroundColor: 'transparent',
@@ -151,9 +151,9 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   messageText: {
-    fontSize: 14,
+    fontSize: fp(14),
     textAlign: 'center',
-    marginTop: 8,
+    marginTop: rem(8),
     fontFamily: fonts["400"],
   },
   errorText: {
@@ -173,10 +173,10 @@ const styles = StyleSheet.create({
     ...typography.button,
   },
   faceIDText: {
-    marginTop: 65,
-    fontSize: 16,
+    marginTop: rem(65),
+    fontSize: fp(16),
     color: colors.neutral.white,
-    marginBottom: 26,
+    marginBottom: rem(26),
     fontFamily: fonts["400"],
     textAlign: 'center',
   },
@@ -184,24 +184,24 @@ const styles = StyleSheet.create({
     marginHorizontal: 'auto',
     justifyContent: 'center',
     alignItems: 'center',
-    width: 70,
-    height: 70,
-    borderRadius: borderRadius.sm10,
+    width: rem(70),
+    height: rem(70),
+    borderRadius: br(10),
     backgroundColor: 'rgba(0, 0, 0, 0.11)',
-    marginBottom: 132,
+    marginBottom: rem(20),
   },
   
   dots: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 20,
+    gap: rem(20),
     marginTop: 'auto',
-    marginBottom: 50,
+    marginBottom: rem(50),
   },
   dot: {
-    width: 10,
-    height: 10,
+    width: rem(10),
+    height: rem(10),
     borderRadius: borderRadius.full,
     backgroundColor: '#D5D8FC',
     opacity: 0.2,

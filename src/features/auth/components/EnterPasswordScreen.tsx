@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions } from 
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '@/types/navigation';
 import ScreenLayout from './ScreenLayout';
-import { borderRadius, colors, fonts, typography } from "@/lib";
+import { borderRadius, colors, fonts, typography, rem, fp, br } from "@/lib";
 import { login } from '@/lib/api';
 import ArrowRight from "@/icons/ArrowRight";
 import QuestionIcon from "@/icons/QuestionIcon";
@@ -22,6 +22,7 @@ export default function EnterPasswordScreen({ navigation, route }: Props) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   // Simple password validation
   const validatePassword = (password: string): boolean => {
@@ -41,12 +42,22 @@ export default function EnterPasswordScreen({ navigation, route }: Props) {
 
     try {
       setError(null);
+      setSuccess(null);
       
       // Send request to backend
       const response = await login(email, password);
       
-      // Log response to console
-      console.log('Login response:', response);
+      // Show success message from backend
+      const successMessage = response.data.message || 'Login successful!';
+      setSuccess(successMessage);
+      
+      // Redirect to VerifyAccountCodeScreen after 1.5 seconds
+      setTimeout(() => {
+        navigation.navigate('VerifyAccountCode', { 
+          method: 'email', 
+          contact: email 
+        });
+      }, 1000);
       
     } catch (err) {
       // Show the actual error message from backend
@@ -63,6 +74,8 @@ export default function EnterPasswordScreen({ navigation, route }: Props) {
   return (
     <ScreenLayout headerTitle={'Enter Password'} headerButtonText={'Cancel'} onHeaderButtonPress={() => navigation.goBack()} >
           <View style={styles.container}>
+            <Text style={styles.title}>Enter Password</Text>
+            
             <View style={styles.inputContainer}>
               <TextInput
                 style={[
@@ -74,6 +87,7 @@ export default function EnterPasswordScreen({ navigation, route }: Props) {
                 onChangeText={(text) => {
                   setPassword(text);
                   if (error) setError(null); // Clear error when user types
+                  if (success) setSuccess(null); // Clear success when user types
                 }}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
@@ -100,13 +114,14 @@ export default function EnterPasswordScreen({ navigation, route }: Props) {
               <ArrowRight />
             </TouchableOpacity>
             
-            {error && (
-              <Text style={[styles.messageText, styles.errorText]}>
-                {error}
-              </Text>
-            )}
+            <Text style={[styles.messageText, error && styles.errorText, success && styles.successText]}>
+              {error || success}
+            </Text>
             
-            <TouchableOpacity style={styles.forgotWrapper}>
+            <TouchableOpacity 
+              style={styles.forgotWrapper}
+              onPress={() => navigation.navigate('ResetPassword')}
+            >
               <QuestionIcon />
               <Text style={styles.forgotText}>Forgot your password?</Text>
             </TouchableOpacity>
@@ -131,10 +146,19 @@ export default function EnterPasswordScreen({ navigation, route }: Props) {
 
 const styles = StyleSheet.create({
   messageText: {
-    fontSize: 14,
+    fontSize: fp(14),
     textAlign: 'center',
-    marginTop: 8,
+    marginTop: rem(8),
     fontFamily: fonts["400"],
+    marginBottom: rem(50),
+  },
+  title: {
+    fontSize: fp(22),
+    fontFamily: fonts["700"],
+    color: colors.neutral.white,
+    textAlign: 'center',
+    marginBottom: rem(70),
+    lineHeight: fp(35),
   },
   errorText: {
     color: '#FF6B6B',
@@ -143,10 +167,9 @@ const styles = StyleSheet.create({
     color: '#4CAF50',
   },
   faceIDText: {
-    marginTop: 65,
-    fontSize: 16,
+    fontSize: fp(16),
     color: colors.neutral.white,
-    marginBottom: 26,
+    marginBottom: rem(26),
     fontFamily: fonts["400"],
     textAlign: 'center',
   },
@@ -154,16 +177,16 @@ const styles = StyleSheet.create({
     marginHorizontal: 'auto',
     justifyContent: 'center',
     alignItems: 'center',
-    width: 70,
-    height: 70,
-    borderRadius: borderRadius.sm10,
+    width: rem(70),
+    height: rem(70),
+    borderRadius: br(10),
     backgroundColor: 'rgba(0, 0, 0, 0.11)',
-    marginBottom: 132,
+    marginBottom: rem(20),
   },
   
   forgotText: {
     color: colors.neutral.white,
-    fontSize: 15,
+    fontSize: fp(15),
     fontFamily: fonts["300"],
     letterSpacing: 0.15,
   },
@@ -171,25 +194,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    marginBottom: 50,
+    gap: rem(8),
+    marginBottom: rem(50),
   },
   container: {
-    paddingTop: 170,
-    paddingHorizontal: 26,
+    paddingTop: rem(70),
+    paddingHorizontal: rem(26),
     flex: 1,
   },
   inputContainer: {
     position: 'relative',
-    marginBottom: 20,
+    marginBottom: rem(20),
   },
   input: {
     borderWidth: 1,
     borderColor: colors.neutral.white,
     borderRadius: borderRadius.sm10,
-    paddingHorizontal: 20,
-    paddingRight: 50,
-    fontSize: 16,
+    paddingHorizontal: rem(20),
+    paddingRight: rem(50),
+    fontSize: fp(16),
     height: 50,
     textAlign: 'center',
     backgroundColor: 'transparent',
@@ -207,7 +230,6 @@ const styles = StyleSheet.create({
   },
   button: {
     ...typography.buttonGreen,
-    marginBottom: 50,
   },
   buttonDisabled: {
     ...typography.buttonGreen,
@@ -220,13 +242,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 20,
+    gap: rem(20),
     marginTop: 'auto',
-    marginBottom: 50,
+    marginBottom: rem(50),
   },
   dot: {
-    width: 10,
-    height: 10,
+    width: rem(10),
+    height: rem(10),
     borderRadius: borderRadius.full,
     backgroundColor: '#D5D8FC',
     opacity: 0.2,

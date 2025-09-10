@@ -21,7 +21,7 @@ const Stack = createNativeStackNavigator<AuthStackParamList>();
 export default function AuthStack() {
   return (
     <Stack.Navigator
-      initialRouteName="Splash"
+      initialRouteName="VerifyAccountCode"
       screenOptions={{
         headerShown: false, // Hide header for auth screens
         gestureEnabled: false, // Disable swipe back gesture

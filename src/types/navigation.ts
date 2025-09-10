@@ -11,7 +11,7 @@ export type AuthStackParamList = {
   ResetPassword: undefined;
   VerifyAccountMethod: undefined;
   SendCodeTo: undefined;
-  VerifyAccountCode: { method: 'call' | 'sms' | 'email'; contact: string };
+  VerifyAccountCode: { method?: 'call' | 'sms' | 'email'; contact?: string };
   FinalVerify: undefined;
 };
 

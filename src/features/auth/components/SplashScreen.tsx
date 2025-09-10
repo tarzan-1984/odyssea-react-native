@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Dimensions, Image } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '@/types/navigation';
+import { rem, fp, br } from '@/lib';
 import ScreenLayout from './ScreenLayout';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Splash'>;
@@ -22,42 +23,63 @@ export default function SplashScreen({ navigation }: Props) {
   }, [navigation]);
 
   return (
-    <ScreenLayout>
+    <View style={styles.wrapper}>
+      <Image
+        source={require('../../../../assets/splachImageBgr.png')}
+        style={styles.bgImage}
+        resizeMode="cover"
+      />
       <View style={styles.container}>
-        
-        <View style={styles.imageWrap}>
-          <Image
-            source={require('../../../../assets/splachImage.png')}
-            style={styles.imageStyle}
-          />
-        </View>
-        
         <View style={styles.logoSection}>
           <Image
             source={require('../../../../assets/logo.png')}
             style={styles.logoImage}
           />
         </View>
+        
+        <View style={styles.splashImageWrap}>
+          <Image
+            source={require('../../../../assets/splachImage.png')}
+          />
+        </View>
       </View>
-    </ScreenLayout>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  splashImageWrap: {
+    marginTop: rem(80),
+    justifyContent: 'center',
+    alignItems: "center",
+  },
+  wrapper: {
+    position: "relative",
+    flex: 1,
+  },
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-end',
-    paddingBottom: 150,
     position: "relative",
+    zIndex: 2,
+  },
+  bgImage: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: "100%",
+    height: "100%",
   },
   logoSection: {
     justifyContent: 'center',
     alignItems: 'center',
   },
   logoImage: {
-    width: 254,
-    height: 92,
+    width: rem(254),
+    height: rem(92),
   },
   imageStyle: {
     width: '100%',
@@ -67,8 +89,8 @@ const styles = StyleSheet.create({
   imageWrap: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 85,
+    marginBottom: rem(85),
     width: '100%',
-    height: 300,
+    height: rem(300),
   }
 });

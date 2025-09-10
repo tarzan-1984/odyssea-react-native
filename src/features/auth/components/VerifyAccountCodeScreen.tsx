@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, Dimensions } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '@/types/navigation';
+import ScreenLayout from './ScreenLayout';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'VerifyAccountCode'>;
 
@@ -13,7 +14,7 @@ const { width } = Dimensions.get('window');
  * Based on the design with header, code input fields, and action buttons
  */
 export default function VerifyAccountCodeScreen({ navigation, route }: Props) {
-  const { method, contact } = route.params;
+  const { method = 'email', contact = 'test@example.com' } = route.params || {};
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const inputRefs = useRef<TextInput[]>([]);
 
@@ -51,52 +52,55 @@ export default function VerifyAccountCodeScreen({ navigation, route }: Props) {
   const isCodeComplete = code.every(digit => digit !== '');
 
   return (
-    <View style={styles.container}>
-      {/* Header with title and cancel button */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Verify Account</Text>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.cancelButton}>Cancel</Text>
-        </TouchableOpacity>
-      </View>
-      
-      {/* Main content */}
-      <View style={styles.content}>
-        <Text style={styles.title}>Verify Account</Text>
-        <Text style={styles.subtitle}>Please Enter Your One-Time Verification Code.</Text>
-        
-        <View style={styles.codeContainer}>
-          {code.map((digit, index) => (
-            <TextInput
-              key={index}
-              ref={(ref) => {
-                if (ref) inputRefs.current[index] = ref;
-              }}
-              style={styles.codeInput}
-              value={digit}
-              onChangeText={(value) => handleCodeChange(value, index)}
-              onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, index)}
-              keyboardType="numeric"
-              maxLength={1}
-              textAlign="center"
-              autoFocus={index === 0}
-            />
-          ))}
+    <ScreenLayout headerTitle={'Verify account'} headerButtonText={'Cancel'} onHeaderButtonPress={() => navigation.goBack()} >
+      <View style={styles.container}>
+        {/* Header with title and cancel button */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Verify Account</Text>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Text style={styles.cancelButton}>Cancel</Text>
+          </TouchableOpacity>
         </View>
         
-        <TouchableOpacity 
-          style={[styles.button, !isCodeComplete && styles.buttonDisabled]} 
-          onPress={handleSendCode}
-          disabled={!isCodeComplete}
-        >
-          <Text style={styles.buttonText}>Send code</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.resendButton} onPress={handleResendCode}>
-          <Text style={styles.resendText}>Resend code</Text>
-        </TouchableOpacity>
+        {/* Main content */}
+        <View style={styles.content}>
+          <Text style={styles.title}>Verify Account</Text>
+          <Text style={styles.subtitle}>Please Enter Your One-Time Verification Code.</Text>
+          
+          <View style={styles.codeContainer}>
+            {code.map((digit, index) => (
+              <TextInput
+                key={index}
+                ref={(ref) => {
+                  if (ref) inputRefs.current[index] = ref;
+                }}
+                style={styles.codeInput}
+                value={digit}
+                onChangeText={(value) => handleCodeChange(value, index)}
+                onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, index)}
+                keyboardType="numeric"
+                maxLength={1}
+                textAlign="center"
+                autoFocus={index === 0}
+              />
+            ))}
+          </View>
+          
+          <TouchableOpacity
+            style={[styles.button, !isCodeComplete && styles.buttonDisabled]}
+            onPress={handleSendCode}
+            disabled={!isCodeComplete}
+          >
+            <Text style={styles.buttonText}>Send code</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.resendButton} onPress={handleResendCode}>
+            <Text style={styles.resendText}>Resend code</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </ScreenLayout>
+    
   );
 }
 

@@ -1,10 +1,12 @@
+import { API_BASE_URL } from '@env';
+
 /**
  * Simple API function for email validation
  */
 
 export const login = async (email: string, password: string) => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/auth/login`, {
+    const response = await fetch(`${API_BASE_URL}/v1/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -16,7 +18,6 @@ export const login = async (email: string, password: string) => {
     });
 
     const data = await response.json();
-    console.log('Backend response:', data);
     
     // If response is not ok, throw error with message
     if (!response.ok) {
