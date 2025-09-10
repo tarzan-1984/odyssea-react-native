@@ -3,7 +3,6 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, Image 
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '@/types/navigation';
 import { colors, typography, spacing, borderRadius, shadows, fonts } from '@/lib';
-import { login } from '@/lib/api';
 import ArrowRight from '@/icons/ArrowRight';
 import FaceIdIcon from '@/icons/FaceIdIcon';
 import ScreenLayout from './ScreenLayout';
@@ -19,10 +18,7 @@ const { width } = Dimensions.get('window');
  */
 export default function WelcomeScreen({ navigation }: Props) {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   // Simple email validation
   const validateEmail = (email: string): boolean => {
@@ -30,12 +26,7 @@ export default function WelcomeScreen({ navigation }: Props) {
     return emailRegex.test(email);
   };
 
-  // Simple password validation
-  const validatePassword = (password: string): boolean => {
-    return password.length >= 6;
-  };
-
-  const handleNext = async () => {
+  const handleNext = () => {
     if (!email.trim()) {
       setError('Email is required');
       return;
@@ -46,39 +37,11 @@ export default function WelcomeScreen({ navigation }: Props) {
       return;
     }
 
-    if (!password.trim()) {
-      setError('Password is required');
-      return;
-    }
-
-    if (!validatePassword(password)) {
-      setError('Password must be at least 6 characters');
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      setError(null);
-      setSuccess(null);
-      
-      // Send request to backend
-      const response = await login(email, password);
-      
-      // Show success message
-      setSuccess(response.data?.message || 'Login successful!');
-      
-      // Redirect after 1 second
-      setTimeout(() => {
-        navigation.navigate('EnterPassword', { email: email.trim() });
-      }, 1000);
-      
-    } catch (err) {
-      // Show the actual error message from backend
-      const errorMessage = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+    // Clear any existing error
+    setError(null);
+    
+    // Navigate to password screen with email
+    navigation.navigate('EnterPassword', { email: email.trim() });
   };
 
   const handleFaceID = () => {
@@ -109,29 +72,8 @@ export default function WelcomeScreen({ navigation }: Props) {
           onChangeText={(text) => {
             setEmail(text);
             if (error) setError(null); // Clear error when user types
-            if (success) setSuccess(null); // Clear success when user types
           }}
           keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-          placeholderTextColor={colors.neutral.white}
-        />
-      </View>
-
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={[
-            styles.input,
-            error && styles.inputError
-          ]}
-          placeholder="Enter your password"
-          value={password}
-          onChangeText={(text) => {
-            setPassword(text);
-            if (error) setError(null); // Clear error when user types
-            if (success) setSuccess(null); // Clear success when user types
-          }}
-          secureTextEntry={true}
           autoCapitalize="none"
           autoCorrect={false}
           placeholderTextColor={colors.neutral.white}
@@ -141,20 +83,18 @@ export default function WelcomeScreen({ navigation }: Props) {
       <TouchableOpacity 
         style={[
           styles.button, 
-          (!email.trim() || !password.trim() || isLoading) && styles.buttonDisabled
+          !email.trim() && styles.buttonDisabled
         ]} 
         onPress={handleNext}
-        disabled={!email.trim() || !password.trim() || isLoading}
+        disabled={!email.trim()}
       >
-        <Text style={styles.buttonText}>
-          {isLoading ? 'Checking...' : 'Next'}
-        </Text>
+        <Text style={styles.buttonText}>Next</Text>
         <ArrowRight />
       </TouchableOpacity>
       
-      {(error || success) && (
-        <Text style={[styles.messageText, error && styles.errorText, success && styles.successText]}>
-          {error || success}
+      {error && (
+        <Text style={[styles.messageText, styles.errorText]}>
+          {error}
         </Text>
       )}
       

@@ -9,6 +9,7 @@ export const colors = {
     blue: '#292966',        // Main brand blue for buttons and active states
     lightBlue: '#5AC8FA',   // Light blue for profile and secondary elements
     green: '#70FFAE',
+    violet: '#6066C5',
   },
 
   // Secondary colors
