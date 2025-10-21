@@ -120,33 +120,15 @@ export const theme = {
   // Shadows
   shadows: {
     sm: {
-      shadowColor: colors.neutral.black,
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
+      boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
       elevation: 2,
     },
     md: {
-      shadowColor: colors.neutral.black,
-      shadowOffset: {
-        width: 0,
-        height: 4,
-      },
-      shadowOpacity: 0.3,
-      shadowRadius: 8,
+      boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)',
       elevation: 4,
     },
     lg: {
-      shadowColor: colors.neutral.black,
-      shadowOffset: {
-        width: 0,
-        height: 8,
-      },
-      shadowOpacity: 0.3,
-      shadowRadius: 16,
+      boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.3)',
       elevation: 8,
     },
   },

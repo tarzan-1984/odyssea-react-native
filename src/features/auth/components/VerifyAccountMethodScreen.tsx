@@ -146,18 +146,12 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 18,
     alignItems: 'center',
-    shadowColor: '#007AFF',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    boxShadow: '0px 4px 8px rgba(0, 122, 255, 0.3)',
     elevation: 8,
   },
   buttonDisabled: {
     backgroundColor: '#C7C7CC',
-    shadowOpacity: 0,
+    boxShadow: 'none',
     elevation: 0,
   },
   buttonText: {
