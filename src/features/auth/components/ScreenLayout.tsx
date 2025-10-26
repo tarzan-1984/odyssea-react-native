@@ -21,15 +21,19 @@ const ScreenLayout: React.FC<ScreenLayoutProps> = ({
 				source={require('../../../../assets/bgBlue.png')}
 				style={styles.bgImage}
 				resizeMode="cover"
+				accessibilityRole="image"
+				accessibilityLabel="Background"
 			/>
 			
 			{/* Header panel - starts from very top */}
 			{headerTitle && (
 				<View style={styles.headerPanel}>
-					<Text style={styles.headerTitle}>{headerTitle}</Text>
+					<Text style={styles.headerTitle} accessibilityRole="header">{headerTitle}</Text>
 					{headerButtonText && onHeaderButtonPress && (
 						<TouchableOpacity
 							onPress={onHeaderButtonPress}
+							accessibilityRole="button"
+							accessibilityLabel={headerButtonText}
 						>
 							<Text style={styles.headerButtonText}>{headerButtonText}</Text>
 						</TouchableOpacity>
@@ -38,7 +42,7 @@ const ScreenLayout: React.FC<ScreenLayoutProps> = ({
 			)}
 			
 			<SafeAreaView style={[styles.safeArea, headerTitle && styles.safeAreaWithHeader]}>
-				<View style={styles.content}>
+				<View style={styles.content} accessibilityLiveRegion="polite">
 					{children}
 				</View>
 			</SafeAreaView>

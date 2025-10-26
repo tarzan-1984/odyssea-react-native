@@ -78,7 +78,7 @@ export default function EnterPasswordScreen({ navigation, route }: Props) {
 
   return (
     <ScreenLayout headerTitle={'Enter Password'} headerButtonText={'Cancel'} onHeaderButtonPress={() => navigation.goBack()} >
-          <View style={[styles.container, message && styles.containerWithMessage]} accessibilityViewIsModal={false}>
+          <View style={[styles.container, message && styles.containerWithMessage]}>
             <Text style={styles.title}>Enter Password</Text>
             
             {/* Show message from backend if available */}
