@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, Image, ActivityIndicator } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '@/types/navigation';
 import { colors, typography, spacing, borderRadius, shadows, fonts, rem, fp, br } from '@/lib';
 import ArrowRight from '@/icons/ArrowRight';
 import FaceIdIcon from '@/icons/FaceIdIcon';
 import ScreenLayout from './ScreenLayout';
+import { useAuth } from '@/hooks/useAuth';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Welcome'>;
 
@@ -18,7 +19,8 @@ const { width } = Dimensions.get('window');
  */
 export default function WelcomeScreen({ navigation }: Props) {
   const [email, setEmail] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [localError, setLocalError] = useState<string | null>(null);
+  const { authState, checkEmailAndGeneratePassword, clearError } = useAuth();
 
   // Simple email validation
   const validateEmail = (email: string): boolean => {
@@ -26,22 +28,34 @@ export default function WelcomeScreen({ navigation }: Props) {
     return emailRegex.test(email);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!email.trim()) {
-      setError('Email is required');
+      setLocalError('Email is required');
       return;
     }
 
     if (!validateEmail(email)) {
-      setError('Please enter a valid email address');
+      setLocalError('Please enter a valid email address');
       return;
     }
 
-    // Clear any existing error
-    setError(null);
+    // Clear any existing errors
+    setLocalError(null);
+    clearError();
     
-    // Navigate to password screen with email
-    navigation.navigate('EnterPassword', { email: email.trim() });
+    try {
+      const result = await checkEmailAndGeneratePassword(email.trim());
+      
+      // Бекенд всегда возвращает успешный ответ, если email валидный
+      // Navigate to password screen with email and message from backend
+      navigation.navigate('EnterPassword', { 
+        email: email.trim(),
+        message: result.data.message
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Network error occurred';
+      setLocalError(errorMessage);
+    }
   };
 
   const handleFaceID = () => {
@@ -65,36 +79,44 @@ export default function WelcomeScreen({ navigation }: Props) {
         <TextInput
           style={[
             styles.input,
-            error && styles.inputError
+            (localError || authState.error) && styles.inputError
           ]}
           placeholder="Enter your email address"
           value={email}
           onChangeText={(text) => {
             setEmail(text);
-            if (error) setError(null); // Clear error when user types
+            if (localError) setLocalError(null); // Clear error when user types
+            if (authState.error) clearError();
           }}
           keyboardType="email-address"
           autoCapitalize="none"
           autoCorrect={false}
           placeholderTextColor={colors.neutral.white}
+          editable={!authState.isLoading}
         />
       </View>
       
       <TouchableOpacity 
         style={[
           styles.button, 
-          !email.trim() && styles.buttonDisabled
+          (!email.trim() || authState.isLoading) && styles.buttonDisabled
         ]} 
         onPress={handleNext}
-        disabled={!email.trim()}
+        disabled={!email.trim() || authState.isLoading}
       >
-        <Text style={styles.buttonText}>Next</Text>
-        <ArrowRight />
+        {authState.isLoading ? (
+          <ActivityIndicator color={colors.neutral.white} size="small" />
+        ) : (
+          <>
+            <Text style={styles.buttonText}>Next</Text>
+            <ArrowRight />
+          </>
+        )}
       </TouchableOpacity>
       
-      {error && (
+      {(localError || authState.error) && (
         <Text style={[styles.messageText, styles.errorText]}>
-          {error}
+          {localError || authState.error}
         </Text>
       )}
       

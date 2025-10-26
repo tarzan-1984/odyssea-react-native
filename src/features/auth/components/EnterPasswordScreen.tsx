@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '@/types/navigation';
 import ScreenLayout from './ScreenLayout';
 import { borderRadius, colors, fonts, typography, rem, fp, br } from "@/lib";
-import { login } from '@/lib/api';
+import { useAuth } from '@/hooks/useAuth';
 import ArrowRight from "@/icons/ArrowRight";
 import QuestionIcon from "@/icons/QuestionIcon";
 import FaceIdIcon from "@/icons/FaceIdIcon";
@@ -18,11 +18,12 @@ type Props = NativeStackScreenProps<AuthStackParamList, 'EnterPassword'>;
  * Based on the design with header, password input, Sign in button, and Face ID option
  */
 export default function EnterPasswordScreen({ navigation, route }: Props) {
-  const { email } = route.params;
+  const { email, message } = route.params;
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [localError, setLocalError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const { authState, login, clearError } = useAuth();
 
   // Simple password validation
   const validatePassword = (password: string): boolean => {
@@ -31,38 +32,42 @@ export default function EnterPasswordScreen({ navigation, route }: Props) {
 
   const handleSignIn = async () => {
     if (!password.trim()) {
-      setError('Password is required');
+      setLocalError('Password is required');
       return;
     }
 
     if (!validatePassword(password)) {
-      setError('Password must be at least 6 characters');
+      setLocalError('Password must be at least 6 characters');
       return;
     }
 
     try {
-      setError(null);
+      setLocalError(null);
       setSuccess(null);
+      clearError();
       
-      // Send request to backend
-      const response = await login(email, password);
+      // Send request to backend using new auth service
+      const result = await login(email, password);
       
-      // Show success message from backend
-      const successMessage = response.data.message || 'Login successful!';
-      setSuccess(successMessage);
-      
-      // Redirect to VerifyAccountCodeScreen after 1.5 seconds
-      setTimeout(() => {
-        navigation.navigate('VerifyAccountCode', { 
-          method: 'email', 
-          contact: email 
-        });
-      }, 1000);
+      if (result.success) {
+        // Show success message
+        setSuccess(result.message || 'Login successful!');
+        
+        // Redirect to VerifyAccountCodeScreen after 1.5 seconds
+        setTimeout(() => {
+          navigation.navigate('VerifyAccountCode', { 
+            method: 'email', 
+            contact: email 
+          });
+        }, 1000);
+      } else {
+        setLocalError(result.error || 'Login failed');
+      }
       
     } catch (err) {
       // Show the actual error message from backend
       const errorMessage = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
-      setError(errorMessage);
+      setLocalError(errorMessage);
     }
   };
 
@@ -73,31 +78,47 @@ export default function EnterPasswordScreen({ navigation, route }: Props) {
 
   return (
     <ScreenLayout headerTitle={'Enter Password'} headerButtonText={'Cancel'} onHeaderButtonPress={() => navigation.goBack()} >
-          <View style={styles.container}>
+          <View style={[styles.container, message && styles.containerWithMessage]} accessibilityViewIsModal={false}>
             <Text style={styles.title}>Enter Password</Text>
+            
+            {/* Show message from backend if available */}
+            {message && (
+              <View style={styles.infoContainer} accessibilityRole="text" accessibilityLabel="Password information">
+                <Text style={styles.infoText}>
+                  {message}
+                </Text>
+              </View>
+            )}
             
             <View style={styles.inputContainer}>
               <TextInput
                 style={[
                   styles.input,
-                  error && styles.inputError
+                  (localError || authState.error) && styles.inputError
                 ]}
                 placeholder="Password"
                 value={password}
                 onChangeText={(text) => {
                   setPassword(text);
-                  if (error) setError(null); // Clear error when user types
+                  if (localError) setLocalError(null); // Clear error when user types
+                  if (authState.error) clearError();
                   if (success) setSuccess(null); // Clear success when user types
                 }}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
                 autoCorrect={false}
                 placeholderTextColor={colors.neutral.white}
+                editable={!authState.isLoading}
+                accessibilityLabel="Password input"
+                accessibilityHint="Enter your password"
               />
               <TouchableOpacity 
                 style={styles.showPasswordButton}
                 onPress={() => setShowPassword(!showPassword)}
                 testID="show-password-button"
+                accessibilityRole="button"
+                accessibilityLabel={showPassword ? "Hide password" : "Show password"}
+                accessibilityHint="Toggle password visibility"
               >
                 <ShowPassword />
               </TouchableOpacity>
@@ -106,17 +127,26 @@ export default function EnterPasswordScreen({ navigation, route }: Props) {
             <TouchableOpacity
               style={[
                 styles.button,
-                !password.trim() && styles.buttonDisabled
+                (!password.trim() || authState.isLoading) && styles.buttonDisabled
               ]}
               onPress={handleSignIn}
-              disabled={!password.trim()}
+              disabled={!password.trim() || authState.isLoading}
+              accessibilityRole="button"
+              accessibilityLabel="Sign in"
+              accessibilityHint="Sign in with your password"
             >
-              <Text style={styles.buttonText}>Sign in</Text>
-              <ArrowRight />
+              {authState.isLoading ? (
+                <ActivityIndicator color={colors.neutral.white} size="small" />
+              ) : (
+                <>
+                  <Text style={styles.buttonText}>Sign in</Text>
+                  <ArrowRight />
+                </>
+              )}
             </TouchableOpacity>
             
-            <Text style={[styles.messageText, error && styles.errorText, success && styles.successText]}>
-              {error || success}
+            <Text style={[styles.messageText, (localError || authState.error) && styles.errorText, success && styles.successText]}>
+              {localError || authState.error || success}
             </Text>
             
             <TouchableOpacity 
@@ -203,9 +233,28 @@ const styles = StyleSheet.create({
     marginBottom: rem(50),
   },
   container: {
-    paddingTop: rem(70),
+    paddingTop: rem(50),
     paddingHorizontal: rem(26),
     flex: 1,
+  },
+  containerWithMessage: {
+    paddingTop: rem(20), // Минимальный отступ когда есть сообщение
+  },
+  infoContainer: {
+    backgroundColor: 'rgba(52, 199, 89, 0.1)',
+    borderColor: '#34C759',
+    borderWidth: 1,
+    borderRadius: borderRadius.sm10,
+    paddingHorizontal: rem(16),
+    paddingVertical: rem(12),
+    marginBottom: rem(16),
+  },
+  infoText: {
+    color: colors.neutral.white,
+    fontSize: fp(13),
+    fontFamily: fonts["400"],
+    textAlign: 'center',
+    lineHeight: fp(18),
   },
   inputContainer: {
     position: 'relative',

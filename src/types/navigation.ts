@@ -7,7 +7,10 @@ export type RootStackParamList = {
 export type AuthStackParamList = {
   Splash: undefined;
   Welcome: undefined;
-  EnterPassword: { email: string };
+  EnterPassword: { 
+    email: string;
+    message?: string;
+  };
   ResetPassword: undefined;
   VerifyAccountMethod: undefined;
   SendCodeTo: undefined;
